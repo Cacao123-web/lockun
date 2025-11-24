@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tổng quan mục tiêu – Libra Health{% endblock %}
+
+{% block content %}
+<h3 class="mb-3">Tổng quan mục tiêu</h3>
+
+<!-- KPIs tuần -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="p-3 border rounded bg-light h-100">
+      <div class="small text-muted">Calories in</div>
+      <div class="fs-4 fw-bold">{{ kpis.calories_in }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="p-3 border rounded bg-light h-100">
+      <div class="small text-muted">Calories out</div>
+      <div class="fs-4 fw-bold">{{ kpis.calories_out }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="p-3 border rounded bg-light h-100">
+      <div class="small text-muted">Buổi tập</div>
+      <div class="fs-4 fw-bold">{{ kpis.workouts }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="p-3 border rounded bg-light h-100">
+      <div class="small text-muted">Chuỗi ngày log</div>
+      <div class="fs-4 fw-bold">{{ kpis.streak }}</div>
+    </div>
+  </div>
+</div>
+
+<!-- Danh sách goals -->
+<div class="d-flex justify-content-between align-items-center mb-2">
+  <h5 class="m-0">Mục tiêu của bạn</h5>
+  <a class="btn btn-sm btn-success" href="{% url 'goals_create' %}">+ Thêm mục tiêu</a>
+</div>
+
+{% if items %}
+  <div class="list-group">
+    {% for g in items %}
+      <div class="list-group-item">
+        <div class="d-flex justify-content-between">
+          <div>
+            <div class="fw-semibold">
+              {{ g.get_type_display }}{% if g.deadline %} • hạn: {{ g.deadline }}{% endif %}
+            </div>
+            <div class="text-muted small">
+              Giá trị mục tiêu: {{ g.target_value }}
+              {% if g.note %} • {{ g.note }}{% endif %}
+            </div>
+          </div>
+          <div class="text-end">
+            <div class="small mb-1">Tiến độ: {{ g.progress_pct }}%</div>
+            <span class="badge {% if g.status == 'done' %}bg-success{% elif g.status == 'on_track' %}bg-primary{% elif g.status == 'at_risk' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+              {{ g.status }}
+            </span>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="alert alert-info">Chưa có mục tiêu nào. Hãy tạo mục tiêu đầu tiên!</div>
+{% endif %}
+{% endblock %}

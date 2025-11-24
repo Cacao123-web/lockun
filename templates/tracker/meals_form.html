@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3 class="mb-3">{{ obj|default_if_none:"Ghi nhận bữa ăn" }}</h3>
+
+<form method="post" class="card p-4 shadow-sm">{% csrf_token %}
+  <div class="row g-3">
+
+    <div class="col-md-3">
+      <label class="form-label">{{ form.date.label }}</label>
+      {{ form.date }}
+      <div class="text-danger small">{{ form.date.errors }}</div>
+    </div>
+
+    <div class="col-md-3">
+      <label class="form-label">{{ form.meal_type.label }}</label>
+      {{ form.meal_type }}
+      <div class="text-danger small">{{ form.meal_type.errors }}</div>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">{{ form.food.label }}</label>
+      {{ form.food }}
+      <div class="text-danger small">{{ form.food.errors }}</div>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">{{ form.portion.label }}</label>
+      {{ form.portion }}
+      <div class="text-danger small">{{ form.portion.errors }}</div>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">{{ form.quantity_gram.label }}</label>
+      {{ form.quantity_gram }}
+      <div class="text-danger small">{{ form.quantity_gram.errors }}</div>
+    </div>
+
+    <div class="col-12">
+      <p class="mt-2 mb-0">
+        <strong>Calo ước tính:</strong>
+        <span id="kcal_preview" class="text-primary">0 kcal</span>
+      </p>
+      <small class="text-muted">Giá trị này được tính tự động dựa trên kcal/100g của món ăn.</small>
+    </div>
+
+  </div>
+
+  <button class="btn btn-success mt-3">Lưu</button>
+</form>
+
+<script>
+  const foodSelect = document.getElementById("id_food");
+  const gramInput  = document.getElementById("id_quantity_gram");
+  const preview    = document.getElementById("kcal_preview");
+
+  // dict {food_id: kcal_per_100g} được truyền từ view
+  const foodKcal = JSON.parse('{{ food_kcal_json|escapejs }}');
+
+  function updateKcal() {
+    const foodId = foodSelect.value;
+    const gram = parseFloat(gramInput.value || 0);
+    const per100 = foodKcal[foodId] || 0;
+    const total = per100 * gram / 100.0;
+    preview.textContent = total.toFixed(1) + " kcal";
+  }
+
+  if (foodSelect && gramInput) {
+    foodSelect.addEventListener("change", updateKcal);
+    gramInput.addEventListener("input", updateKcal);
+    updateKcal();
+  }
+</script>
+
+{% endblock %}

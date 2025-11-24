@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block content %}
+<h3 class="mb-3">{{ obj|default_if_none:"Ghi nhận buổi tập" }}</h3>
+
+<form method="post" class="card p-3 shadow-sm">
+  {% csrf_token %}
+  <div class="row g-3">
+    <div class="col-md-3">
+      <label class="form-label">{{ form.date.label }}</label>
+      {{ form.date }}
+      <div class="text-danger small">{{ form.date.errors }}</div>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">{{ form.type.label }}</label>
+      {{ form.type }}
+      <div class="text-danger small">{{ form.type.errors }}</div>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">{{ form.duration_min.label }}</label>
+      {{ form.duration_min }}
+      <div class="text-danger small">{{ form.duration_min.errors }}</div>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">{{ form.distance_km.label }}</label>
+      {{ form.distance_km }}
+      <small class="text-muted d-block">km (có thể bỏ trống)</small>
+      <div class="text-danger small">{{ form.distance_km.errors }}</div>
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">{{ form.steps.label }}</label>
+      {{ form.steps }}
+      <small class="text-muted d-block">Bước chân (nếu có)</small>
+      <div class="text-danger small">{{ form.steps.errors }}</div>
+    </div>
+    <div class="col-md-9">
+      <label class="form-label">{{ form.note.label }}</label>
+      {{ form.note }}
+      <div class="text-danger small">{{ form.note.errors }}</div>
+    </div>
+  </div>
+
+  <small class="text-muted d-block mt-2">
+    Calo đốt sẽ được hệ thống tự tính dựa trên loại bài tập, thời gian, quãng đường và bước chân.
+  </small>
+
+  <button class="btn btn-success mt-3">Lưu</button>
+</form>
+{% endblock %}

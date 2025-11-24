@@ -1,0 +1,155 @@
+/* ===========================
+   MÀU CHỦ ĐẠO – CAM
+   =========================== */
+:root {
+  --green:   #ff8a00;   /* cam đậm (navbar, nút) */
+  --green-2: #ffb347;   /* cam nhạt (button phụ, chatbox) */
+  --green-3: #fff4e5;   /* nền cam lợt, dùng cho background */
+}
+
+/* ===========================
+   THANH TRÊN (TOPBAR)
+   =========================== */
+.topbar {
+  background: var(--green);
+  font-size: 0.9rem;
+}
+
+/* ===========================
+   HEADER / LOGO TEXT
+   =========================== */
+.header .brand {
+  color: var(--green);
+  font-size: 1.4rem;
+  font-weight: bold;
+}
+.text-green {
+  color: var(--green);
+}
+
+/* ===========================
+   BUTTON
+   =========================== */
+.btn-green {
+  background: var(--green);
+  color: #fff;
+  border: none;
+  transition: background 0.2s;
+}
+.btn-green:hover {
+  background: #ff6a00;  /* cam đậm hơn khi hover */
+  color: #fff;
+}
+
+/* ===========================
+   NAVBAR
+   =========================== */
+.nav-green {
+  background: var(--green);
+}
+
+.nav-green .nav-link {
+  color: #fff;
+  opacity: 0.9;
+  transition: opacity 0.2s;
+}
+
+.nav-green .nav-link:hover,
+.nav-green .nav-link.active {
+  opacity: 1;
+  color: #fff;
+}
+
+/* ===========================
+   HERO SECTION
+   =========================== */
+.hero {
+  background: linear-gradient(90deg, var(--green) 0%, var(--green-2) 100%);
+  padding: 18px 0 26px;
+}
+
+.hero .hero-box {
+  background:
+    url('../img/hero-med.jpg') right bottom / contain no-repeat,
+    linear-gradient(90deg, rgba(255,255,255,.20), rgba(255,255,255,.05));
+  min-height: 220px;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+/* ===========================
+   FOOTER
+   =========================== */
+.footer {
+  background: #cc6d00;  /* cam đậm hơn để chữ trắng dễ đọc */
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* ===========================
+   CHATBOX
+   =========================== */
+#chatbox {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  width: 320px;
+  z-index: 9999;
+}
+
+#chatbox .card-header {
+  background: var(--green);
+  color: #fff;
+  font-weight: 600;
+}
+
+#chatbox .btn-green {
+  background: var(--green-2);
+}
+
+/* ===========================
+   SERVICE CARDS
+   =========================== */
+.service-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 28px 20px;
+  background: #fff7ef;          /* nền cam rất nhẹ */
+  border: 1px solid #ffe5c2;
+  border-radius: 14px;
+  text-decoration: none;
+  color: #7a3c00;
+  text-align: center;
+  height: 100%;
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease,
+    border-color .15s ease,
+    background .15s ease;
+}
+
+.service-card i {
+  font-size: 36px;
+  color: var(--green);
+  line-height: 1;
+}
+
+.service-card span {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.service-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 22px rgba(0,0,0,.06);
+  border-color: #ffcd8f;
+  background: #ffffff;
+}

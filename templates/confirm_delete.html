@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+{% block content %}
+<h4>Xác nhận xóa</h4>
+<form method="post">{% csrf_token %}
+  <p>Bạn chắc chắn muốn xóa: {{ obj }} ?</p>
+  <button class="btn btn-danger">Xóa</button>
+  <a class="btn btn-secondary" href="javascript:history.back()">Hủy</a>
+</form>
+{% endblock %}

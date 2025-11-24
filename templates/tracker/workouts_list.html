@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Buổi tập</h3>
+  <a class="btn btn-success" href="{% url 'tracker:workouts_create' %}">+ Thêm</a>
+</div>
+
+<form class="my-2">
+  <div class="input-group">
+    <input class="form-control" name="q" placeholder="Tìm loại hình..." value="{{ q }}">
+    <button class="btn btn-outline-secondary">Tìm</button>
+  </div>
+</form>
+
+{# ==== Thông tin mục tiêu đang chạy (nếu có) ==== #}
+{% if summary.active_goal %}
+  <div class="alert alert-info small">
+    <strong>Mục tiêu đang thực hiện:</strong>
+    {{ summary.active_goal.get_type_display }} tới {{ summary.active_goal.target_value }} kg
+    (<span>Bắt đầu: {{ summary.active_goal.start_date|date:"d/m/Y" }}</span>,
+     <span>Hạn: {{ summary.active_goal.deadline|date:"d/m/Y" }}</span>)
+    <br>
+    {% if summary.goal_range_text %}
+      <span>{{ summary.goal_range_text }}</span>
+    {% endif %}
+  </div>
+{% endif %}
+
+{# ==== Các ô tổng hợp ==== #}
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Tổng thời gian</div>
+      <div class="fs-5">{{ summary.total_minutes|default:"0" }} phút</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Tổng kcal đốt</div>
+      <div class="fs-5">{{ summary.total_kcal|default:"0"|floatformat:0 }} kcal</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Tổng bước chân</div>
+      <div class="fs-5">{{ summary.total_steps|default:"0" }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Tổng quãng đường</div>
+      <div class="fs-5">{{ summary.total_distance|default:"0"|floatformat:1 }} km</div>
+    </div>
+  </div>
+</div>
+
+{# ==== Thông tin kcal mục tiêu (nếu có) ==== #}
+{% if summary.active_goal and summary.goal_total_required > 0 %}
+  <div class="card mb-3 border-0 shadow-sm">
+    <div class="card-body small">
+      <div class="d-flex justify-content-between">
+        <div>
+          <div class="text-muted">Kcal cần đốt cho toàn bộ mục tiêu</div>
+          <div class="fw-bold">
+            {{ summary.goal_total_required|floatformat:0 }} kcal
+          </div>
+          {% if summary.goal_daily_required %}
+          <div class="text-muted">
+            Trung bình mỗi ngày cần ~ {{ summary.goal_daily_required|floatformat:0 }} kcal
+          </div>
+          {% endif %}
+        </div>
+
+        <div class="text-end">
+          <div class="text-muted mb-1">Tiến độ theo kcal</div>
+          <div class="fw-bold">
+            {{ summary.goal_kcal_progress_pct|floatformat:1 }}%
+          </div>
+          <div class="progress" style="height:6px;">
+            <div class="progress-bar bg-success"
+                 style="width: {{ summary.goal_kcal_progress_pct }}%;"
+                 aria-valuenow="{{ summary.goal_kcal_progress_pct }}"
+                 aria-valuemin="0"
+                 aria-valuemax="100">
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+{# ==== Bảng buổi tập ==== #}
+<table class="table table-hover align-middle">
+  <thead>
+    <tr>
+      <th>Ngày</th>
+      <th>Loại</th>
+      <th>Thời gian</th>
+      <th>Quãng đường</th>
+      <th>Steps</th>
+      <th>Calo</th>
+      <th>Ghi chú</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for i in items %}
+    <tr>
+      <td>{{ i.date|date:"d/m/Y" }}</td>
+      <td>{{ i.get_type_display }}</td>
+      <td>{{ i.duration_min }}'</td>
+      <td>{{ i.distance_km|floatformat:1 }}</td>
+      <td>{{ i.steps }}</td>
+      <td class="fw-bold">{{ i.calories_out|floatformat:0 }}</td>
+      <td>{{ i.note }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary"
+           href="{% url 'tracker:workouts_edit' i.id %}">Sửa</a>
+        <a class="btn btn-sm btn-outline-danger"
+           href="{% url 'tracker:workouts_delete' i.id %}">Xóa</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr>
+      <td colspan="8" class="text-center text-muted">Chưa có dữ liệu</td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if items.has_other_pages %}
+<nav>
+  <ul class="pagination">
+    {% if items.has_previous %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?page={{ items.previous_page_number }}&q={{ q }}">«</a>
+      </li>
+    {% endif %}
+    <li class="page-item disabled">
+      <span class="page-link">
+        Trang {{ items.number }}/{{ items.paginator.num_pages }}
+      </span>
+    </li>
+    {% if items.has_next %}
+      <li class="page-item">
+        <a class="page-link"
+           href="?page={{ items.next_page_number }}&q={{ q }}">»</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{% endblock %}

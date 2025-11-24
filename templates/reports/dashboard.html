@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<h3 class="mb-3">Thống kê &amp; Biểu đồ</h3>
+
+{# ====== FORM LỌC KHOẢNG NGÀY + EXPORT ====== #}
+<form class="row g-2 align-items-end mb-3" method="get">
+  <div class="col-auto">
+    <label class="form-label">Từ ngày</label>
+    <input type="date" class="form-control" name="start"
+           value="{{ start|date:'Y-m-d' }}">
+  </div>
+  <div class="col-auto">
+    <label class="form-label">Đến ngày</label>
+    <input type="date" class="form-control" name="end"
+           value="{{ end|date:'Y-m-d' }}">
+  </div>
+  <div class="col-auto">
+    <button class="btn btn-success" type="submit">Lọc</button>
+    <a class="btn btn-outline-secondary"
+       href="{% url 'export_csv' %}?start={{ start|date:'Y-m-d' }}&amp;end={{ end|date:'Y-m-d' }}">
+      Xuất CSV
+    </a>
+    <a class="btn btn-outline-secondary"
+       href="{% url 'export_pdf' %}?start={{ start|date:'Y-m-d' }}&amp;end={{ end|date:'Y-m-d' }}">
+      Xuất PDF
+    </a>
+  </div>
+</form>
+
+{# ====== KPI TỔNG HỢP ====== #}
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Tổng calo nạp</div>
+      <div class="fs-5">{{ total_in|floatformat:0 }} kcal</div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Tổng calo đốt</div>
+      <div class="fs-5">{{ total_out|floatformat:0 }} kcal</div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Chênh lệch (In - Out)</div>
+      <div class="fs-5">
+        {% if net_total < 0 %}
+          <span class="text-success">{{ net_total|floatformat:0 }} kcal</span>
+        {% else %}
+          <span class="text-danger">{{ net_total|floatformat:0 }} kcal</span>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Trung bình / ngày</div>
+      <div class="fs-5">{{ net_avg|floatformat:0 }} kcal</div>
+    </div>
+  </div>
+</div>
+
+{# ====== THÔNG TIN PROFILE (BMI / TDEE) ====== #}
+{% if profile %}
+  <p class="mt-2 mb-3">
+    <b>BMI:</b> {{ profile.bmi }};&nbsp;
+    <b>TDEE ước tính:</b> {{ profile.tdee|default:2000|floatformat:0 }} kcal/ngày
+  </p>
+{% endif %}
+
+{# ====== GỢI Ý THEO MỤC TIÊU (NẾU CÓ) ====== #}
+{% if active_goal %}
+  <div class="alert alert-warning">
+    <h6 class="fw-bold mb-1">Gợi ý theo mục tiêu {{ goal_text }}</h6>
+
+    {% if deficit_per_day %}
+      <p class="mb-1">
+        Để đạt mục tiêu này, bạn cần tạo thâm hụt trung bình khoảng
+        <strong>{{ deficit_per_day|floatformat:0 }} kcal/ngày</strong>.
+      </p>
+    {% endif %}
+
+    {% if net_avg < 0 %}
+      <p class="mb-0 text-success">
+        Hiện tại bạn đang thâm hụt trung bình
+        <strong>{{ net_avg|floatformat:0 }} kcal/ngày</strong>.
+        Tiến độ đang tốt, hãy duy trì đều đặn chế độ ăn và tập luyện.
+      </p>
+    {% elif net_avg > 0 %}
+      <p class="mb-0 text-danger">
+        Hiện tại bạn đang dư thừa trung bình
+        <strong>{{ net_avg|floatformat:0 }} kcal/ngày</strong>.
+        Hãy cố gắng giảm lượng tinh bột, đường, đồ chiên/xào và tăng rau xanh,
+        trái cây ít ngọt để quay lại đúng quỹ đạo.
+      </p>
+    {% else %}
+      <p class="mb-0">
+        Lượng calo nạp vào và đốt ra đang cân bằng. Nếu mục tiêu là giảm cân,
+        bạn cần tạo thêm thâm hụt năng lượng mỗi ngày.
+      </p>
+    {% endif %}
+  </div>
+{% endif %}
+
+{# ====== BIỂU ĐỒ IN – OUT – NET ====== #}
+<div class="card p-3 mb-3">
+  <div style="height: 380px">
+    <canvas id="calChart"></canvas>
+  </div>
+</div>
+
+{# ====== DỮ LIỆU JSON CHO BIỂU ĐỒ ====== #}
+{{ labels  | json_script:"labels-data" }}
+{{ cal_in  | json_script:"calin-data" }}
+{{ cal_out | json_script:"calout-data" }}
+{{ net_arr | json_script:"net-data" }}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function () {
+  const labels = JSON.parse(document.getElementById('labels-data').textContent);
+  const calIn  = JSON.parse(document.getElementById('calin-data').textContent);
+  const calOut = JSON.parse(document.getElementById('calout-data').textContent);
+  const netArr = JSON.parse(document.getElementById('net-data').textContent);
+
+  const ctx = document.getElementById('calChart').getContext('2d');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Calories In',
+          data: calIn,
+          borderWidth: 2,
+          tension: 0.25
+        },
+        {
+          label: 'Calories Out',
+          data: calOut,
+          borderWidth: 2,
+          tension: 0.25
+        },
+        {
+          label: 'Net (In - Out)',
+          data: netArr,
+          borderWidth: 2,
+          borderDash: [6, 4],
+          tension: 0.25
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      scales: {
+        y: { beginAtZero: true }
+      }
+    }
+  });
+})();
+</script>
+
+{% endblock %}

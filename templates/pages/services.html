@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dịch vụ – Libra Health{% endblock %}
+{% block hero %}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row g-4 align-items-center mb-4">
+    <div class="col-md-7">
+      <h3 class="mb-3 text-success">Dịch vụ của Libra Health</h3>
+      <p>
+        Libra Health hỗ trợ bạn theo dõi, phân tích và cải thiện sức khỏe cá nhân
+        thông qua tập luyện, dinh dưỡng, mục tiêu và báo cáo trực quan.
+      </p>
+      <ul class="mt-3">
+        <li><strong>Theo dõi sức khỏe cá nhân:</strong> Chiều cao, cân nặng, BMI, BMR, bước chân, thời gian vận động, calo tiêu hao…</li>
+        <li><strong>Quản lý tập luyện:</strong> Gợi ý bài tập, lưu lịch sử buổi tập, tính calo tiêu hao.</li>
+        <li><strong>Quản lý dinh dưỡng:</strong> Theo dõi calo nạp vào và đề xuất thực đơn cân đối.</li>
+        <li><strong>Thiết lập mục tiêu:</strong> Giảm cân, tăng cơ, duy trì thể trạng; theo dõi tiến độ.</li>
+        <li><strong>Báo cáo & thống kê:</strong> Biểu đồ theo tuần/tháng, so sánh xu hướng.</li>
+        <li><strong>Trợ lý sức khỏe (AI):</strong> Hỏi – đáp nhanh về tập luyện và dinh dưỡng.</li>
+      </ul>
+      <p class="text-muted small mt-3">* Thông tin chỉ mang tính tham khảo, không thay thế chẩn đoán y khoa.</p>
+    </div>
+
+    <div class="col-md-5 text-center">
+      <img src="{% static 'img/hero-med.jpg' %}" class="img-fluid rounded shadow-sm" alt="Dịch vụ Libra Health">
+    </div>
+  </div>
+
+  <h4 class="mt-5 mb-3 text-success">Các dịch vụ chính</h4>
+  <div class="row g-3">
+    <div class="col-12 col-md-6 col-lg-4">
+      <a class="service-card" href="{% url 'dashboard' %}">
+        <i class="bi bi-activity"></i>
+        <span>Theo dõi sức khỏe</span>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-4">
+      <a class="service-card" href="/tracker/workouts/">
+        <i class="bi bi-bicycle"></i>
+        <span>Theo dõi tập luyện</span>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-4">
+      <a class="service-card" href="/tracker/meals/">
+        <i class="bi bi-egg-fried"></i>
+        <span>Quản lý dinh dưỡng</span>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-4">
+      <a class="service-card" href="/goals/">
+        <i class="bi bi-bullseye"></i>
+        <span>Mục tiêu sức khỏe</span>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-4">
+      <a class="service-card" href="/reports/">
+        <i class="bi bi-graph-up-arrow"></i>
+        <span>Báo cáo & thống kê</span>
+      </a>
+    </div>
+
+    <div class="col-12 col-md-6 col-lg-4">
+      <a class="service-card" href="#" id="open-chat">
+        <i class="bi bi-robot"></i>
+        <span>Trợ lý sức khỏe (AI)</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- JS: mở chatbox khi bấm “Trợ lý sức khỏe (AI)” -->
+<script>
+  document.getElementById('open-chat')?.addEventListener('click', function (e) {
+    e.preventDefault();
+    const chat = document.getElementById('chatbox');
+    const toggle = document.getElementById('chat-toggle');
+    // nếu đang thu nhỏ thì mở ra
+    if (chat?.classList.contains('minimized')) toggle?.click();
+    chat?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  });
+</script>
+{% endblock %}

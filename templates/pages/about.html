@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Giới thiệu – Libra Health{% endblock %}
+{% block hero %}{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="row g-4 align-items-center mb-4">
+    <div class="col-md-7">
+      <h3 class="mb-3">Giới thiệu</h3>
+      <p>
+        <strong>Libra Health</strong> là nền tảng giúp người dùng cá nhân quản lý và theo dõi sức khỏe hằng ngày.
+        Hệ thống đặc biệt phù hợp với <em>học sinh – sinh viên</em>, <em>nhân viên văn phòng</em> và
+        bất kỳ ai quan tâm đến sức khỏe của mình.
+      </p>
+
+      <h5 class="mt-4">Nhóm người dùng hướng tới</h5>
+      <ul class="mb-3">
+        <li>Học sinh, sinh viên muốn theo dõi thể trạng và thói quen vận động.</li>
+        <li>Nhân viên văn phòng cần quản lý cân nặng, dinh dưỡng và mức độ hoạt động.</li>
+        <li>Người dùng cá nhân quan tâm đến sức khỏe tổng quát.</li>
+      </ul>
+
+      <h5 class="mt-4">Dữ liệu sức khỏe được theo dõi</h5>
+      <ul class="mb-4">
+        <li>Chiều cao, cân nặng; tính <strong>BMI</strong> (chỉ số khối cơ thể).</li>
+        <li><strong>BMR</strong> (tỷ lệ trao đổi chất cơ bản) để ước tính nhu cầu năng lượng nền.</li>
+        <li>Số bước chân, thời gian vận động và cường độ tập luyện.</li>
+        <li>Lượng <strong>calo tiêu hao</strong> khi tập luyện.</li>
+        <li>Lượng <strong>calo nạp vào</strong> từ chế độ dinh dưỡng (bữa ăn hằng ngày).</li>
+      </ul>
+
+      <p class="small text-muted">
+        * Dữ liệu chỉ phục vụ mục đích theo dõi cá nhân và tư vấn tham khảo, không thay thế chẩn đoán y khoa.
+      </p>
+    </div>
+
+    <div class="col-md-5 text-center">
+      <!-- Dùng ảnh có sẵn trong static để tránh 404 -->
+      <img src="{% static 'img/hero-med.jpg' %}" alt="Quản lý sức khỏe cá nhân"
+           class="img-fluid rounded shadow-sm">
+    </div>
+  </div>
+</div>
+{% endblock %}

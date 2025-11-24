@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h3 class="mb-0">Món</h3>
+  <a class="btn btn-success" href="{% url 'tracker:meals_create' %}">+ Thêm</a>
+</div>
+
+<form class="my-2">
+  <div class="input-group">
+    <input class="form-control" name="q" placeholder="Tìm món..." value="{{ q }}">
+    <button class="btn btn-outline-secondary">Tìm</button>
+  </div>
+</form>
+
+{# ==== Thông tin mục tiêu đang chạy (nếu có) ==== #}
+{% if summary.active_goal %}
+  <div class="alert alert-info small">
+    <strong>Mục tiêu đang thực hiện:</strong>
+    {{ summary.active_goal.get_type_display }} tới {{ summary.active_goal.target_value }} kg
+    (Bắt đầu: {{ summary.active_goal.start_date|date:"d/m/Y" }},
+    Hạn: {{ summary.active_goal.deadline|date:"d/m/Y" }})
+    <br>
+    {% if summary.goal_text %}
+      {{ summary.goal_text }}
+    {% endif %}
+  </div>
+{% endif %}
+
+{# ==== Các ô tổng hợp ăn uống ==== #}
+<div class="row g-3 mb-3">
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Tổng calo đã nạp</div>
+      <div class="fs-5">{{ summary.total_kcal|default:"0"|floatformat:0 }} kcal</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Số ngày có log</div>
+      <div class="fs-5">{{ summary.days_count|default:"0" }}</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Trung bình / ngày</div>
+      <div class="fs-5">{{ summary.avg_kcal_per_day|default:"0"|floatformat:0 }} kcal</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="border rounded p-3 text-center">
+      <div class="small text-muted">Mục tiêu calo / ngày</div>
+      <div class="fs-5">
+        {% if summary.goal_daily_target %}
+          {{ summary.goal_daily_target|floatformat:0 }} kcal
+        {% else %}
+          Chưa có
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+{# ==== GỢI Ý DINH DƯỠNG ==== #}
+<div class="alert alert-warning mt-3">
+  <h6 class="fw-bold mb-1">Gợi ý dinh dưỡng dành cho bạn</h6>
+
+  {% if summary.goal_daily_target and summary.active_goal %}
+    <p class="mb-1">
+      Để đạt được mục tiêu <strong>{{ summary.active_goal.get_type_display }}</strong>,
+      bạn nên duy trì mức năng lượng mỗi ngày khoảng
+      <strong>{{ summary.goal_daily_target|floatformat:0 }} kcal</strong>.
+    </p>
+
+    {% if summary.avg_kcal_per_day and summary.avg_kcal_per_day > summary.goal_daily_target %}
+      <p class="mb-1 text-danger">
+        Hiện tại bạn đang ăn cao hơn mức khuyến nghị. Hãy cố gắng giảm tinh bột, đường,
+        đồ chiên/xào và tăng rau xanh, trái cây ít ngọt.
+      </p>
+    {% elif summary.avg_kcal_per_day %}
+      <p class="mb-1 text-success">
+        Bạn đang ăn ở mức phù hợp hoặc thấp hơn mức khuyến nghị.
+        Hãy duy trì đều đặn và ưu tiên thực phẩm giàu đạm, ít dầu mỡ.
+      </p>
+    {% else %}
+      <p class="mb-1">
+        Hệ thống chưa đủ dữ liệu để so sánh. Hãy ghi lại bữa ăn đều đặn mỗi ngày để theo dõi chính xác hơn.
+      </p>
+    {% endif %}
+
+  {% else %}
+    <p class="mb-0">
+      Bạn chưa đặt mục tiêu cụ thể. Hãy tạo một mục tiêu giảm / tăng / duy trì cân nặng
+      để hệ thống gợi ý lượng calo phù hợp mỗi ngày cho bạn.
+    </p>
+  {% endif %}
+</div>
+
+{# ==== Biểu đồ calories in vs TDEE ==== #}
+<div class="card mb-3 border-0 shadow-sm">
+  <div class="card-body">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+      <div class="fw-bold">Biểu đồ dinh dưỡng</div>
+      <div class="small text-muted">
+        So sánh calo ăn vào với TDEE (ước tính) theo ngày
+      </div>
+    </div>
+    <div style="position: relative; height: 320px;">
+      <canvas id="nutritionChart"></canvas>
+    </div>
+  </div>
+</div>
+
+{# ==== Bảng món ăn ==== #}
+<table class="table table-hover align-middle">
+  <thead>
+    <tr>
+      <th>Ngày</th>
+      <th>Bữa</th>
+      <th>Món</th>
+      <th>Khẩu phần</th>
+      <th>Gram</th>
+      <th>Calo</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for i in items %}
+    <tr>
+      <td>{{ i.date|date:"d/m/Y" }}</td>
+      <td>{{ i.get_meal_type_display }}</td>
+      <td>{{ i.food.name }}</td>
+      <td>{{ i.portion }}</td>
+      <td>{{ i.quantity_gram|floatformat:1 }} g</td>
+      <td class="fw-bold">{{ i.calories_in|floatformat:0 }}</td>
+      <td>
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'tracker:meals_edit' i.id %}">Sửa</a>
+        <a class="btn btn-sm btn-outline-danger" href="{% url 'tracker:meals_delete' i.id %}">Xóa</a>
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" class="text-center text-muted">Chưa có dữ liệu</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+
+{% if items.has_other_pages %}
+<nav>
+  <ul class="pagination">
+    {% if items.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ items.previous_page_number }}&q={{ q }}">«</a>
+      </li>
+    {% endif %}
+    <li class="page-item disabled">
+      <span class="page-link">
+        Trang {{ items.number }}/{{ items.paginator.num_pages }}
+      </span>
+    </li>
+    {% if items.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ items.next_page_number }}&q={{ q }}">»</a>
+      </li>
+    {% endif %}
+  </ul>
+</nav>
+{% endif %}
+
+{# ==== Chart.js ==== #}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+(function () {
+  const ctx = document.getElementById('nutritionChart');
+  if (!ctx) return;
+
+  // Các mảng JSON đã được chuẩn bị trong meals_summary()
+  const labels   = JSON.parse('{{ summary.chart_labels_json|default:"[]"|escapejs }}');
+  const calories = JSON.parse('{{ summary.chart_calories_json|default:"[]"|escapejs }}');
+  const tdee     = JSON.parse('{{ summary.chart_tdee_json|default:"[]"|escapejs }}');
+
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Calories in',
+          data: calories,
+          borderWidth: 2,
+          tension: 0.25,
+        },
+        {
+          label: 'TDEE (ước tính)',
+          data: tdee,
+          borderWidth: 2,
+          borderDash: [6, 4],
+          tension: 0.25,
+        },
+      ],
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: false,
+        },
+      },
+    },
+  });
+})();
+</script>
+
+{% endblock %}

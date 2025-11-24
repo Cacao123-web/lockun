@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+
+{% block hero %}{% endblock %}
+
+{% block content %}
+
+<style>
+/* ===========================
+   AUTH PAGE INLINE CSS
+   =========================== */
+.auth-page {
+  min-height: calc(100vh - 150px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 0;
+  background: linear-gradient(135deg, #e9ddff, #e7f1ff);
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #ffffffee;
+  backdrop-filter: blur(6px);
+  border-radius: 20px;
+  padding: 32px 28px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+  border: 1px solid rgba(255,255,255,0.7);
+}
+
+.auth-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 4px;
+  text-align: center;
+  color: #1e293b;
+}
+
+.auth-sub {
+  font-size: 0.9rem;
+  text-align: center;
+  margin-bottom: 20px;
+  color: #475569;
+}
+
+.auth-sub a {
+  color: #6d5dfc;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.auth-sub a:hover {
+  text-decoration: underline;
+}
+
+.auth-card .form-label {
+  font-weight: 600;
+  color: #334155;
+}
+
+.auth-card .form-control {
+  border-radius: 12px;
+  padding: 10px;
+  border: 1px solid #cbd5e1;
+}
+
+.auth-card .form-control:focus {
+  border-color: #6d5dfc;
+  box-shadow: 0 0 0 0.15rem rgba(109, 93, 252, 0.25);
+}
+
+.auth-btn {
+  background: linear-gradient(135deg, #6d5dfc, #8b5cf6);
+  color: #fff !important;
+  font-weight: 600;
+  border-radius: 12px;
+  border: none;
+  padding: 10px;
+  font-size: 1rem;
+}
+
+.auth-btn:hover {
+  filter: brightness(1.08);
+  color: #fff;
+}
+</style>
+
+<div class="auth-page">
+  <div class="auth-card">
+
+    <h2 class="auth-title">Tạo tài khoản</h2>
+    <p class="auth-sub">
+      Đã có tài khoản? <a href="{% url 'accounts:login' %}">Đăng nhập</a>
+    </p>
+
+    {% if form.errors %}
+      <div class="alert alert-danger py-2">
+        {{ form.non_field_errors }}
+      </div>
+    {% endif %}
+
+    <form method="post" novalidate>
+      {% csrf_token %}
+
+      {% for field in form %}
+        <div class="mb-3">
+          <label class="form-label">{{ field.label }}</label>
+          {{ field }}
+        </div>
+      {% endfor %}
+
+      <button type="submit" class="btn auth-btn w-100 mt-2">
+        Đăng ký
+      </button>
+    </form>
+
+  </div>
+</div>
+
+{% endblock %}

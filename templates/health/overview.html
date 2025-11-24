@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+{% block title %}Quản lý sức khỏe cá nhân – Libra Health{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+  <h2 class="fw-bold mb-4 text-green">Quản lý sức khỏe cá nhân</h2>
+
+  {# ====== HỒ SƠ SỨC KHỎE ====== #}
+  <div class="row g-3 mb-4">
+    <div class="col-md-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h5 class="card-title">Chỉ số cơ thể</h5>
+          {% if profile %}
+            <p class="mb-1"><b>Cân nặng hiện tại:</b> {{ profile.weight_kg }} kg</p>
+            <p class="mb-1"><b>BMI:</b> {{ profile.bmi }} ({{ bmi_text }})</p>
+            <p class="mb-1"><b>BMR:</b> {{ profile.bmr|default:"—" }} kcal/ngày</p>
+            <p class="mb-0"><b>TDEE ước tính:</b> {{ tdee|floatformat:0 }} kcal/ngày</p>
+          {% else %}
+            <p>Chưa có hồ sơ. Hãy vào mục <b>Hồ sơ</b> để nhập chiều cao, cân nặng.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    {# ====== HÔM NAY: ĂN UỐNG & TẬP LUYỆN ====== #}
+    <div class="col-md-8">
+      <div class="row g-3">
+        <div class="col-md-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+              <div class="small text-muted">Calo đã nạp (hôm nay)</div>
+              <div class="fs-4 fw-bold">{{ cal_in_today|floatformat:0 }} kcal</div>
+              <div class="small text-muted">từ bữa ăn</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+              <div class="small text-muted">Calo đã đốt (hôm nay)</div>
+              <div class="fs-4 fw-bold">{{ cal_out_today|floatformat:0 }} kcal</div>
+              <div class="small text-muted">từ tập luyện</div>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <div class="card shadow-sm border-0 h-100">
+            <div class="card-body text-center">
+              <div class="small text-muted">Cân bằng năng lượng</div>
+              <div class="fs-4 fw-bold">
+                {{ net_cal_today|floatformat:0 }} kcal
+              </div>
+              {% if net_cal_today < 0 %}
+                <div class="small text-success">Đang thâm hụt – hỗ trợ giảm cân</div>
+              {% elif net_cal_today > 0 %}
+                <div class="small text-danger">Đang dư năng lượng – dễ tăng cân</div>
+              {% else %}
+                <div class="small text-muted">Gần bằng TDEE – có xu hướng giữ cân</div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {# ====== MỤC TIÊU HIỆN TẠI ====== #}
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+      <h5 class="card-title mb-3">Mục tiêu sức khỏe hiện tại</h5>
+      {% if active_goal %}
+        <p class="mb-1">
+          <b>Loại mục tiêu:</b> {{ active_goal.get_type_display }}
+        </p>
+        <p class="mb-1">
+          <b>Cân nặng mục tiêu:</b> {{ active_goal.target_value }} kg
+        </p>
+        <p class="mb-1">
+          <b>Bắt đầu:</b> {{ active_goal.start_date|date:"d/m/Y" }}
+          &nbsp;–&nbsp;
+          <b>Hạn:</b> {{ active_goal.deadline|date:"d/m/Y" }}
+        </p>
+        {% if active_goal.start_weight_kg %}
+          <p class="mb-1">
+            <b>Cân nặng lúc bắt đầu:</b> {{ active_goal.start_weight_kg }} kg
+          </p>
+        {% endif %}
+        <p class="mb-0 text-muted small">
+          Bạn có thể xem chi tiết tiến độ ở mục <b>Mục tiêu</b> và liên kết với tập luyện / dinh dưỡng.
+        </p>
+      {% else %}
+        <p class="mb-0">
+          Hiện bạn chưa có mục tiêu nào đang thực hiện.
+          Hãy vào mục <b>Mục tiêu</b> để đặt mục tiêu giảm/tăng/duy trì cân nặng.
+        </p>
+      {% endif %}
+    </div>
+  </div>
+
+  {# ====== GỢI Ý CHUNG CHO NGƯỜI DÙNG ====== #}
+  <div class="alert alert-warning">
+    <h6 class="fw-bold mb-1">Gợi ý chăm sóc sức khỏe cá nhân</h6>
+    <ul class="mb-0">
+      <li>Giữ mức năng lượng gần với TDEE nếu muốn duy trì cân nặng.</li>
+      <li>Tạo thâm hụt 300–500 kcal/ngày nếu mục tiêu là giảm cân lành mạnh.</li>
+      <li>Kết hợp tập luyện ít nhất 150 phút/tuần với chế độ ăn nhiều rau, ít đồ chiên/xào.</li>
+      <li>Ngủ đủ 7–8 tiếng và hạn chế thức khuya để hỗ trợ phục hồi cơ thể.</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

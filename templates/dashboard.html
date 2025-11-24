@@ -1,0 +1,196 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Trang chủ – Libra Health{% endblock %}
+
+{% block content %}
+<!-- Dải icon dịch vụ -->
+<section class="my-4">
+  <div class="container">
+    <div class="row row-cols-2 row-cols-md-6 g-3 text-center">
+      {% for s in services %}
+      <div class="col">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body">
+            <div class="display-6 text-green mb-2"><i class="bi bi-heart-pulse"></i></div>
+            <div class="small">{{ s }}</div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Giới thiệu -->
+<section class="my-4">
+  <div class="container">
+    <div class="row g-4 align-items-center">
+      <div class="col-md-6">
+        <img class="img-fluid rounded shadow" src="{% static 'img/hospital.png' %}" alt="Libra Health">
+      </div>
+      <div class="col-md-6">
+        <h3 class="text-green fw-bold">Giới thiệu</h3>
+        <p>Libra Health khẳng định vị thế thương hiệu là Bệnh viện đa khoa hàng đầu tại TP.HCM. Chúng tôi đồng hành cùng triệu người dân với dịch vụ khám chữa bệnh hiện đại, quy trình chuẩn quốc tế và đội ngũ bác sĩ chuyên khoa giàu kinh nghiệm.</p>
+        <ul>
+          <li>Khám sức khỏe định kỳ cho cá nhân & doanh nghiệp</li>
+          <li>Hồ sơ điện tử, kết quả online, nhắc lịch tự động</li>
+          <li>Tư vấn dinh dưỡng – tập luyện – mục tiêu sức khỏe</li>
+        </ul>
+        <a href="/services/" class="btn btn-green">Khám phá dịch vụ</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Lợi ích của Libra Health -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h3 class="text-center text-green fw-bold mb-4">
+      Vì sao nên dùng Libra Health?
+    </h3>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm p-3">
+          <div class="display-6 text-green mb-2 text-center"><i class="bi bi-clipboard2-pulse"></i></div>
+          <h5 class="fw-bold text-center">Theo dõi sức khỏe toàn diện</h5>
+          <p class="small text-muted text-center">
+            Ghi nhận hồ sơ sức khỏe, tự động tính BMI – BMR – TDEE giúp bạn hiểu rõ tình trạng cơ thể.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm p-3">
+          <div class="display-6 text-green mb-2 text-center"><i class="bi bi-fire"></i></div>
+          <h5 class="fw-bold text-center">Theo dõi tập luyện & dinh dưỡng</h5>
+          <p class="small text-muted text-center">
+            Ghi lại buổi tập, bước chân, quãng đường và bữa ăn mỗi ngày. Tính calo tiêu – calo nạp chính xác.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm p-3">
+          <div class="display-6 text-green mb-2 text-center"><i class="bi bi-bell"></i></div>
+          <h5 class="fw-bold text-center">Nhắc nhở tự động qua email</h5>
+          <p class="small text-muted text-center">
+            Không lo quên tập luyện hay ăn uống hợp lý – hệ thống gửi nhắc nhở theo mục tiêu của bạn.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Các tính năng nổi bật -->
+<section class="py-5">
+  <div class="container">
+    <h3 class="text-center text-green fw-bold mb-4">Tính năng nổi bật</h3>
+
+    <div class="row g-4">
+      <div class="col-md-6">
+        <ul class="list-group shadow-sm">
+          <li class="list-group-item"><i class="bi bi-check-circle text-green me-2"></i>Quản lý hồ sơ sức khỏe</li>
+          <li class="list-group-item"><i class="bi bi-check-circle text-green me-2"></i>Tính toán BMI – BMR – TDEE tự động</li>
+          <li class="list-group-item"><i class="bi bi-check-circle text-green me-2"></i>Theo dõi tập luyện (chạy bộ, gym, yoga…)</li>
+          <li class="list-group-item"><i class="bi bi-check-circle text-green me-2"></i>Nhật ký dinh dưỡng hàng ngày</li>
+          <li class="list-group-item"><i class="bi bi-check-circle text-green me-2"></i>Đặt mục tiêu sức khỏe</li>
+          <li class="list-group-item"><i class="bi bi-check-circle text-green me-2"></i>Email nhắc nhở cá nhân hoá</li>
+          <li class="list-group-item"><i class="bi bi-check-circle text-green me-2"></i>Báo cáo theo ngày – tuần – tháng</li>
+          <li class="list-group-item"><i class="bi bi-check-circle text-green me-2"></i>Xuất dữ liệu PDF / CSV</li>
+        </ul>
+      </div>
+
+      <div class="col-md-6 d-flex align-items-center">
+        <img src="{% static 'img/favicon.png' %}" class="img-fluid rounded shadow" alt="Dashboard">
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Quy trình 4 bước -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <h3 class="text-center text-green fw-bold mb-4">Chỉ 4 bước để bắt đầu sống khỏe</h3>
+
+    <div class="row g-4">
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+          <div class="step-number text-center fw-bold text-green display-6">1</div>
+          <h6 class="fw-bold text-center">Tạo tài khoản</h6>
+          <p class="small text-muted text-center">Đăng ký nhanh chóng, miễn phí hoàn toàn.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+          <div class="step-number text-center fw-bold text-green display-6">2</div>
+          <h6 class="fw-bold text-center">Nhập hồ sơ sức khỏe</h6>
+          <p class="small text-muted text-center">Hệ thống tự tính chỉ số sức khỏe của bạn.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+          <div class="step-number text-center fw-bold text-green display-6">3</div>
+          <h6 class="fw-bold text-center">Ghi lại tập luyện & dinh dưỡng</h6>
+          <p class="small text-muted text-center">Theo dõi mỗi ngày – có thống kê đầy đủ.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card border-0 shadow-sm p-3 h-100">
+          <div class="step-number text-center fw-bold text-green display-6">4</div>
+          <h6 class="fw-bold text-center">Nhận báo cáo & nhắc nhở</h6>
+          <p class="small text-muted text-center">Email nhắc nhở giúp bạn không bỏ lỡ mục tiêu.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Đối tượng phù hợp -->
+<section class="py-5">
+  <div class="container">
+    <h3 class="text-center text-green fw-bold mb-4">Phù hợp với ai?</h3>
+
+    <div class="row g-4 justify-content-center">
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 p-3">
+          <h6 class="fw-bold"><i class="bi bi-person-workspace me-2 text-green"></i>Sinh viên & nhân viên văn phòng</h6>
+          <p class="small text-muted">Cải thiện sức khỏe, giữ dáng, theo dõi cân nặng khoa học.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 p-3">
+          <h6 class="fw-bold"><i class="bi bi-bicycle me-2 text-green"></i>Người tập gym – thể thao</h6>
+          <p class="small text-muted">Ghi lại buổi tập, quản lý calo, đặt mục tiêu tăng cơ – giảm mỡ.</p>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100 p-3">
+          <h6 class="fw-bold"><i class="bi bi-people me-2 text-green"></i>Gia đình & câu lạc bộ</h6>
+          <p class="small text-muted">Theo dõi sức khỏe của từng thành viên, nhắc nhở tập luyện.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<!-- CTA cuối trang -->
+<section class="py-5 bg-green text-white" style="background: var(--green);">
+  <div class="container text-center">
+    <h3 class="fw-bold mb-2">Bắt đầu hành trình sức khỏe của bạn ngay hôm nay!</h3>
+    <p class="mb-3">Chỉ mất vài phút để tạo tài khoản và đặt mục tiêu đầu tiên.</p>
+
+    {% if user.is_authenticated %}
+      {# Dùng link thẳng, không dùng namespace 'goals' nữa #}
+      <a href="/goals/" class="btn btn-light px-4 py-2 fw-bold">Tạo mục tiêu</a>
+    {% else %}
+      <a href="{% url 'accounts:signup' %}" class="btn btn-light px-4 py-2 fw-bold">Đăng ký ngay</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
