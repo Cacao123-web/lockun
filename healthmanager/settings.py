@@ -9,18 +9,25 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-dev")
+
+# Trên Render nên set biến môi trường DEBUG=False
 DEBUG = os.getenv("DEBUG", "True") == "True"
+
 ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     "lockun.onrender.com",
 ]
+
 CSRF_TRUSTED_ORIGINS = [
     "https://lockun.onrender.com",
     # nếu sau này có domain riêng:
     # "https://tenmiencuaban.com",
     # "https://www.tenmiencuaban.com",
 ]
+
+# Nếu deploy sau reverse proxy (Render) – giúp nhận https đúng
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # ==============================
 # Ứng dụng (Apps)
@@ -49,6 +56,8 @@ INSTALLED_APPS = [
 # ==============================
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    # Whitenoise để serve static trên Render / production
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -115,9 +124,17 @@ USE_TZ = True
 # ==============================
 # Static & Media
 # ==============================
-STATIC_URL = "static/"
+# URL cho static
+STATIC_URL = "/static/"
+
+# Thư mục chứa static trong source (css, js, img...)
 STATICFILES_DIRS = [BASE_DIR / "static"]
+
+# Nơi collectstatic gom file vào (Render sẽ serve thư mục này)
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# Whitenoise storage: nén + hash tên file static
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -141,6 +158,7 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = "no-reply@librahealth.local"
+
 # ==============================
 # API (Chatbot / OpenAI)
 # ==============================
