@@ -56,11 +56,13 @@ class Profile(models.Model):
             return ""
         if v < 18.5:
             return "Gầy"
-        if v < 25:
+        if v < 23:
             return "Bình thường"
-        if v < 30:
+        if v < 25:
             return "Thừa cân"
-        return "Béo phì"
+        if v < 30:
+            return "Béo phì"
+        return "Béo phì nặng"
 
     def recalc(self):
         """
