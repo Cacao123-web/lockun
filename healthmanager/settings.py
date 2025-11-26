@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-
+import dj_database_url
 # ==============================
 # Cấu hình cơ bản
 # ==============================
@@ -102,7 +102,13 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
-
+DATABASE_URL = os.getenv("DATABASE_URL")
+if DATABASE_URL:
+    DATABASES["default"] = dj_database_url.config(
+        default=DATABASE_URL,
+        conn_max_age=600,              # giữ kết nối pool, đỡ tốn tài nguyên
+        ssl_require=not DEBUG,         # Render thường dùng SSL
+    )
 # ==============================
 # Mật khẩu & Bảo mật
 # ==============================
