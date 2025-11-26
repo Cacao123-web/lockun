@@ -22,11 +22,14 @@ urlpatterns = [
     # Hồ sơ
     path("profile/", views.profile, name="profile"),
 
-    # Quản trị
+    # Quản trị user thường
     path("admin-users/", views.users_list, name="admin_users"),
     path("admin-users/delete/<int:user_id>/", views.delete_user, name="delete_user"),
 
-    # 🔐 QUÊN MẬT KHẨU + OTP 2 BƯỚC
+    # Quên mật khẩu + OTP
     path("password-reset/", views.password_reset_request, name="password_reset_request"),
     path("password-reset/xac-thuc/", views.password_reset_verify, name="password_reset_verify"),
+
+    # ⚠️ DEBUG – tạo/reset tài khoản admin trên Render (chạy 1 lần rồi xóa)
+    path("debug-create-admin/", views.debug_create_admin, name="debug_create_admin"),
 ]

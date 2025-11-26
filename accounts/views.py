@@ -1,4 +1,6 @@
-# accounts/views.py
+from django.http import HttpResponse
+from django.contrib.auth import get_user_model
+from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth import login, logout
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
@@ -201,3 +203,26 @@ def password_reset_verify(request):
         form = PasswordResetVerifyForm()
 
     return render(request, "accounts/password_reset_verify.html", {"form": form, "user": user})
+
+
+# =======================================
+# DEBUG: TẠO / RESET TÀI KHOẢN ADMIN TRÊN RENDER
+# =======================================
+@csrf_exempt
+def debug_create_admin(request):
+    User = get_user_model()
+    user, created = User.objects.get_or_create(
+        username="admin",
+        defaults={
+            "email": "admin@example.com",
+            "is_staff": True,
+            "is_superuser": True,
+        },
+    )
+    # luôn đảm bảo quyền + mật khẩu
+    user.is_staff = True
+    user.is_superuser = True
+    user.set_password("Admin123!")
+    user.save()
+
+    return HttpResponse(f"OK – admin created/updated. created={created}")
