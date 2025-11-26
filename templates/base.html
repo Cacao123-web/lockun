@@ -233,6 +233,7 @@
     }
   </style>
 
+  <!-- Nút mở chat + panel chat -->
   <div id="ai-fab" class="ai-chat-fab">AI</div>
 
   <div id="ai-panel" class="ai-chat-panel">
@@ -251,16 +252,24 @@
   </div>
 
   <script>
-    const fab = document.getElementById("ai-fab");
-    const panel = document.getElementById("ai-panel");
+    const fab    = document.getElementById("ai-fab");
+    const panel  = document.getElementById("ai-panel");
     const closeBtn = document.getElementById("ai-close");
-    const form = document.getElementById("ai-form");
-    const input = document.getElementById("ai-input");
-    const msgs = document.getElementById("ai-msgs");
+    const form   = document.getElementById("ai-form");
+    const input  = document.getElementById("ai-input");
+    const msgs   = document.getElementById("ai-msgs");
 
+    function addMsg(txt, who) {
+      const div = document.createElement("div");
+      div.className = who === "user" ? "ai-msg-user" : "ai-msg-bot";
+      div.textContent = txt;
+      msgs.appendChild(div);
+      msgs.scrollTop = msgs.scrollHeight;
+    }
+
+    // Mở panel + lời chào lần đầu
     fab.onclick = () => {
       panel.style.display = "flex";
-      // nếu chưa có tin nhắn nào thì gửi lời chào
       if (!msgs.hasChildNodes()) {
         addMsg(
           "Xin chào! Mình là trợ lý sức khỏe Libra Health. " +
@@ -271,30 +280,22 @@
       }
     };
 
+    // Đóng panel
     closeBtn.onclick = () => panel.style.display = "none";
 
-    function addMsg(txt, who) {
-      const div = document.createElement("div");
-      div.className = who === "user" ? "ai-msg-user" : "ai-msg-bot";
-      div.textContent = txt;
-      msgs.appendChild(div);
-      msgs.scrollTop = msgs.scrollHeight;
-    }
-
+    // Gửi câu hỏi
     form.onsubmit = async (e) => {
       e.preventDefault();
       const text = input.value.trim();
       if (!text) return;
 
-      // Hiển thị câu hỏi của user
       addMsg(text, "user");
       input.value = "";
 
       try {
-        // Gọi đến API health-chat giới hạn nội dung
         const res = await fetch("/chatbot/api/health-chat/", {
           method: "POST",
-          headers: {"Content-Type": "application/json"},
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ message: text })
         });
 

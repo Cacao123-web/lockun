@@ -5,5 +5,5 @@ from .views import health_chat
 app_name = "chatbot"
 
 urlpatterns = [
-    path("api/health-chat/", health_chat, name="health_chat"),
+    path("", health_chat, name="health_chat"),
 ]
