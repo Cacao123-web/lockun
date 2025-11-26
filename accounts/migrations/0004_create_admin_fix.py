@@ -12,7 +12,7 @@ def create_admin(apps, schema_editor):
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('accounts', '0001_initial'),
+        ("accounts", "0003_passwordresetotp"),  # nếu khác thì sửa theo project của bạn
     ]
 
     operations = [
