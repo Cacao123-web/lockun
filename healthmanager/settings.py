@@ -2,6 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+
 # ==============================
 # Cấu hình cơ bản
 # ==============================
@@ -17,13 +18,14 @@ ALLOWED_HOSTS = [
     "127.0.0.1",
     "localhost",
     "lockun.onrender.com",
+    "lockun.id.vn",
+    "www.lockun.id.vn",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "https://lockun.onrender.com",
-    # nếu sau này có domain riêng:
-    # "https://tenmiencuaban.com",
-    # "https://www.tenmiencuaban.com",
+    "https://lockun.id.vn",
+    "https://www.lockun.id.vn",
 ]
 
 # Nếu deploy sau reverse proxy (Render) – giúp nhận https đúng
@@ -109,6 +111,7 @@ if DATABASE_URL:
         conn_max_age=600,              # giữ kết nối pool, đỡ tốn tài nguyên
         ssl_require=not DEBUG,         # Render thường dùng SSL
     )
+
 # ==============================
 # Mật khẩu & Bảo mật
 # ==============================
