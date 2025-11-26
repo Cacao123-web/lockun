@@ -16,7 +16,7 @@ urlpatterns = [
     path("health/", reports_views.health_overview, name="health_overview"),
     # API chatbot (JS đang gọi /api/chat/)
     path("api/", include("chatbot.urls")),
-    
+    path("chatbot/", include("chatbot.urls", namespace="chatbot")),
     # Trang chính & tĩnh
     path("", DashboardView.as_view(), name="dashboard"),
     path("search/", views.search, name="search"),    # nếu search nằm trong healthmanager/views.py

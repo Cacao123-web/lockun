@@ -1,8 +1,9 @@
-from django.http import JsonResponse
+# chatbot/urls.py
 from django.urls import path
-from .views import chat_api
+from .views import health_chat
+
+app_name = "chatbot"
 
 urlpatterns = [
-    path("chat/", chat_api, name="chat_api"),
-    path("ping/", lambda r: JsonResponse({"ok": True, "src": "chatbot"})),
+    path("api/health-chat/", health_chat, name="health_chat"),
 ]
