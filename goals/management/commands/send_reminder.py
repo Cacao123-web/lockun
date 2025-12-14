@@ -24,7 +24,7 @@ class Command(BaseCommand):
 
             lines = []
             for g in goals:
-                type_label = dict(Goal.GOAL_TYPES).get(g.type, g.type)
+                type_label = dict(Goal.GOAL_TYPE_CHOICES).get(g.type, g.type)
                 lines.append(
                     f"- Mục tiêu: {type_label}, mục tiêu: {g.target_value}, tiến độ: {g.progress_pct}%"
                 )
