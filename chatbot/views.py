@@ -1,42 +1,130 @@
 # chatbot/views.py
 import json
+import re
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
-from django.conf import settings
-from openai import OpenAI
+from django.views.decorators.http import require_http_methods
 
-HEALTH_CONTEXT = """
-Libra Health là website quản lý sức khỏe cá nhân với các chức năng chính:
-- Tính BMI, phân loại theo chuẩn châu Á.
-- Tính BMR (Mifflin-St Jeor) và TDEE dựa trên chiều cao, cân nặng, tuổi, giới tính và mức độ vận động.
-- Quản lý hồ sơ sức khỏe: chiều cao, cân nặng, giới tính, tuổi, mức vận động.
-- Theo dõi bữa ăn: nhập món ăn, khẩu phần, khối lượng (gram), tính tổng kcal trong ngày.
-- Theo dõi tập luyện: nhập bài tập, thời lượng, ước tính calo tiêu hao.
-- Đặt mục tiêu sức khỏe (giảm cân, tăng cân, duy trì) dựa trên TDEE.
-- Các gợi ý chăm sóc sức khỏe chung: ăn đủ chất, tập luyện thường xuyên, ngủ đủ giấc.
 
-Nguyên tắc trả lời:
-- Chỉ trả lời các câu hỏi liên quan đến: BMI, BMR, TDEE, dinh dưỡng, luyện tập, kiểm soát cân nặng,
-  và cách sử dụng các chức năng trên website Libra Health.
-- Không được trả lời các chủ đề khác (code, game, tài chính, tình cảm, lịch sử, chính trị, v.v.).
-- Không chẩn đoán bệnh, không kê đơn thuốc, chỉ đưa ra lời khuyên chung và luôn nhắc người dùng
-  hỏi ý kiến bác sĩ khi có vấn đề sức khỏe nghiêm trọng.
-- Nếu câu hỏi nằm ngoài phạm vi trên, hãy trả lời ngắn gọn rằng bạn chỉ hỗ trợ về sức khỏe
-  và các chức năng của Libra Health.
-"""
+# =========================
+# HÀM TÍNH TOÁN CƠ BẢN
+# =========================
+def calc_bmi(weight, height_cm):
+    h = height_cm / 100
+    bmi = weight / (h * h)
+    return round(bmi, 2)
 
+
+def bmi_category_asia(bmi):
+    if bmi < 18.5:
+        return "Gầy"
+    elif bmi < 23:
+        return "Bình thường"
+    elif bmi < 25:
+        return "Thừa cân"
+    else:
+        return "Béo phì"
+
+
+def calc_bmr(weight, height, age, gender):
+    # Mifflin-St Jeor
+    if gender == "male":
+        return round(10 * weight + 6.25 * height - 5 * age + 5)
+    else:
+        return round(10 * weight + 6.25 * height - 5 * age - 161)
+
+
+def calc_tdee(bmr, activity):
+    factors = {
+        "ít": 1.2,
+        "nhẹ": 1.375,
+        "vừa": 1.55,
+        "nhiều": 1.725,
+    }
+    return round(bmr * factors.get(activity, 1.2))
+
+
+# =========================
+# TRẢ LỜI THEO RULE
+# =========================
+def reply_rule_based(message: str) -> str:
+    msg = message.lower()
+
+    # ---- BMI ----
+    m = re.search(r"bmi\s*(\d+)\s*kg\s*(\d+)\s*cm", msg)
+    if m:
+        w = float(m.group(1))
+        h = float(m.group(2))
+        bmi = calc_bmi(w, h)
+        cate = bmi_category_asia(bmi)
+        return f"BMI của bạn là {bmi} ({cate} theo chuẩn châu Á)."
+
+    # ---- BMR ----
+    if "bmr" in msg:
+        return (
+            "BMR là năng lượng cơ thể cần để duy trì sự sống khi nghỉ ngơi.\n"
+            "Công thức: Mifflin-St Jeor.\n"
+            "Ví dụ: BMR = 10×cân nặng + 6.25×chiều cao − 5×tuổi ± giới tính."
+        )
+
+    # ---- TDEE ----
+    if "tdee" in msg:
+        return (
+            "TDEE là tổng năng lượng bạn tiêu thụ mỗi ngày.\n"
+            "TDEE = BMR × mức độ vận động.\n"
+            "Dùng để giảm cân, tăng cân hoặc duy trì cân nặng."
+        )
+
+    # ---- GIẢM CÂN ----
+    if "giảm cân" in msg:
+        return (
+            "Để giảm cân an toàn:\n"
+            "- Thâm hụt 300–500 kcal/ngày\n"
+            "- Ăn đủ protein\n"
+            "- Tập luyện đều đặn\n"
+            "- Ngủ đủ giấc"
+        )
+
+    # ---- TĂNG CÂN ----
+    if "tăng cân" in msg:
+        return (
+            "Để tăng cân:\n"
+            "- Dư năng lượng 300–500 kcal/ngày\n"
+            "- Ăn đủ đạm và tinh bột\n"
+            "- Tập kháng lực\n"
+            "- Nghỉ ngơi hợp lý"
+        )
+
+    # ---- HELP ----
+    if msg in ["help", "trợ giúp", "hướng dẫn"]:
+        return (
+            "Mình có thể hỗ trợ:\n"
+            "- BMI (ví dụ: BMI 65kg 170cm)\n"
+            "- BMR, TDEE\n"
+            "- Giảm cân, tăng cân\n"
+            "- Cách dùng website Libra Health"
+        )
+
+    # ---- MẶC ĐỊNH ----
+    return (
+        "Mình chỉ hỗ trợ các vấn đề về sức khỏe như BMI, BMR, TDEE, "
+        "dinh dưỡng, tập luyện và cách dùng Libra Health."
+    )
+
+
+# =========================
+# API CHAT
+# =========================
 @csrf_exempt
-@require_POST
+@require_http_methods(["GET", "POST"])
 def health_chat(request):
-    # 1) Check API key trước để khỏi “mất kết nối” mù
-    if not getattr(settings, "OPENAI_API_KEY", ""):
-        return JsonResponse({"error": "Missing OPENAI_API_KEY on server"}, status=500)
+    # GET để test API sống
+    if request.method == "GET":
+        return JsonResponse({"ok": True, "message": "Chat API is running (FREE mode)."})
 
-    # 2) Parse JSON an toàn (tránh lỗi khi body rỗng / JSON sai)
+    # POST
     try:
-        raw = request.body.decode("utf-8") if request.body else ""
-        data = json.loads(raw or "{}")
+        data = json.loads(request.body.decode("utf-8") or "{}")
     except json.JSONDecodeError:
         return JsonResponse({"error": "Invalid JSON"}, status=400)
 
@@ -44,33 +132,5 @@ def health_chat(request):
     if not user_message:
         return JsonResponse({"error": "empty message"}, status=400)
 
-    # 3) Tạo client sau khi chắc chắn có key (tránh client bị init với key rỗng)
-    client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
-    try:
-        completion = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {
-                    "role": "system",
-                    "content": (
-                        "Bạn là trợ lý sức khỏe của website Libra Health. "
-                        "Giữ câu trả lời ngắn gọn, dễ hiểu, tiếng Việt, giọng thân thiện. "
-                        "Dưới đây là thông tin về hệ thống và phạm vi hỗ trợ:\n\n"
-                        + HEALTH_CONTEXT
-                    ),
-                },
-                {"role": "user", "content": user_message},
-            ],
-            temperature=0.5,
-            max_tokens=300,
-        )
-
-        reply = (completion.choices[0].message.content or "").strip()
-        return JsonResponse({"reply": reply})
-
-    except Exception:
-        return JsonResponse(
-            {"error": "Đã có lỗi khi gọi trợ lý sức khỏe, vui lòng thử lại sau."},
-            status=500,
-        )
+    reply = reply_rule_based(user_message)
+    return JsonResponse({"reply": reply})
