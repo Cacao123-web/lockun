@@ -4,11 +4,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-
 from openai import OpenAI
-
-client = OpenAI(api_key=settings.OPENAI_API_KEY)
-
 
 HEALTH_CONTEXT = """
 Libra Health là website quản lý sức khỏe cá nhân với các chức năng chính:
@@ -30,19 +26,30 @@ Nguyên tắc trả lời:
   và các chức năng của Libra Health.
 """
 
-
-@csrf_exempt   # nếu sau này bạn dùng CSRF token thì có thể bỏ cái này
+@csrf_exempt
 @require_POST
 def health_chat(request):
-    data = json.loads(request.body.decode("utf-8"))
-    user_message = data.get("message", "").strip()
+    # 1) Check API key trước để khỏi “mất kết nối” mù
+    if not getattr(settings, "OPENAI_API_KEY", ""):
+        return JsonResponse({"error": "Missing OPENAI_API_KEY on server"}, status=500)
 
+    # 2) Parse JSON an toàn (tránh lỗi khi body rỗng / JSON sai)
+    try:
+        raw = request.body.decode("utf-8") if request.body else ""
+        data = json.loads(raw or "{}")
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON"}, status=400)
+
+    user_message = (data.get("message") or "").strip()
     if not user_message:
         return JsonResponse({"error": "empty message"}, status=400)
 
+    # 3) Tạo client sau khi chắc chắn có key (tránh client bị init với key rỗng)
+    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+
     try:
         completion = client.chat.completions.create(
-            model="gpt-4o-mini",    # hoặc model khác bạn đang dùng
+            model="gpt-4o-mini",
             messages=[
                 {
                     "role": "system",
@@ -53,21 +60,16 @@ def health_chat(request):
                         + HEALTH_CONTEXT
                     ),
                 },
-                {
-                    "role": "user",
-                    "content": user_message,
-                },
+                {"role": "user", "content": user_message},
             ],
             temperature=0.5,
             max_tokens=300,
         )
 
-        reply = completion.choices[0].message.content.strip()
-
+        reply = (completion.choices[0].message.content or "").strip()
         return JsonResponse({"reply": reply})
 
-    except Exception as e:
-        # log thực tế thì bạn có thể print(e) hoặc logging
+    except Exception:
         return JsonResponse(
             {"error": "Đã có lỗi khi gọi trợ lý sức khỏe, vui lòng thử lại sau."},
             status=500,
