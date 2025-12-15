@@ -14,15 +14,13 @@ GRANT ALL PRIVILEGES ON DATABASE healthdb TO postgres;
 
 ## Cài đặt
 ```bash
-cd healthmanager
+cd lockun-main
 python -m venv .venv
 # Windows:
 . .venv/Scripts/activate
-# Linux/macOS:
-# source .venv/bin/activate
+python -m pip install --upgrade pip
 
 pip install -r requirements.txt
-copy .env.example .env  # hoặc tự tạo file .env
 python manage.py migrate
 python manage.py createsuperuser
 python manage.py runserver
