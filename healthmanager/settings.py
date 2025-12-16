@@ -13,7 +13,7 @@ load_dotenv(BASE_DIR / ".env.example", override=False)
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "unsafe-dev")
 
 # Trên Render nên set biến môi trường DEBUG=False
-DEBUG = os.getenv("DEBUG", "True") == "True"
+DEBUG = os.getenv("DEBUG", "True").strip().lower() in ("true", "1", "yes")
 
 ALLOWED_HOSTS = [
     "127.0.0.1",
@@ -31,6 +31,15 @@ CSRF_TRUSTED_ORIGINS = [
 
 # Nếu deploy sau reverse proxy (Render) – giúp nhận https đúng
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+# (Khuyến nghị) Basic security khi DEBUG=False
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = False  # Render thường đã terminate SSL; bật True nếu bạn muốn ép https 100%
+    SECURE_HSTS_SECONDS = 0      # có thể set 31536000 khi chắc chắn
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = False
+    SECURE_HSTS_PRELOAD = False
 
 # ==============================
 # Ứng dụng (Apps)
@@ -105,12 +114,13 @@ DATABASES = {
         "PORT": os.getenv("DB_PORT", "5432"),
     }
 }
+
 DATABASE_URL = os.getenv("DATABASE_URL")
 if DATABASE_URL:
     DATABASES["default"] = dj_database_url.config(
         default=DATABASE_URL,
-        conn_max_age=600,              # giữ kết nối pool, đỡ tốn tài nguyên
-        ssl_require=not DEBUG,         # Render thường dùng SSL
+        conn_max_age=600,        # giữ kết nối pool, đỡ tốn tài nguyên
+        ssl_require=not DEBUG,   # Render thường dùng SSL
     )
 
 # ==============================
@@ -134,16 +144,9 @@ USE_TZ = True
 # ==============================
 # Static & Media
 # ==============================
-# URL cho static
 STATIC_URL = "/static/"
-
-# Thư mục chứa static trong source (css, js, img...)
 STATICFILES_DIRS = [BASE_DIR / "static"]
-
-# Nơi collectstatic gom file vào (Render sẽ serve thư mục này)
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-# Whitenoise storage: nén + hash tên file static
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
@@ -158,16 +161,27 @@ LOGOUT_REDIRECT_URL = "login"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 # ==============================
-# Email (gửi nhắc nhở)
+# Email (gửi nhắc nhở / reset pass)
 # ==============================
-EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_BACKEND = os.getenv(
+    "EMAIL_BACKEND",
+    "django.core.mail.backends.smtp.EmailBackend"
+)
+
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", "587"))
-EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True") == "True"
+
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", "True").strip().lower() in ("true", "1", "yes")
+EMAIL_USE_SSL = os.getenv("EMAIL_USE_SSL", "False").strip().lower() in ("true", "1", "yes")
+
 EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER", "")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD", "")
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-SERVER_EMAIL = "no-reply@librahealth.local"
+
+DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
+SERVER_EMAIL = os.getenv("SERVER_EMAIL", DEFAULT_FROM_EMAIL)
+
+# Quan trọng: chống treo SMTP -> tránh Gunicorn worker timeout
+EMAIL_TIMEOUT = int(os.getenv("EMAIL_TIMEOUT", "10"))
 
 # ==============================
 # API (Chatbot / OpenAI)
